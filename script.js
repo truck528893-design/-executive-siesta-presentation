@@ -1,4 +1,4 @@
-const images=['executive-siesta-01.jpg','executive-siesta-02.jpg','executive-siesta-03.jpg','executive-siesta-04.jpg'];
+const images=['assets/executive-siesta-01.jpg','assets/executive-siesta-02.jpg','assets/executive-siesta-03.jpg','assets/executive-siesta-04.jpg'];
 let current=Math.floor(Math.random()*images.length);
 const img=document.getElementById('heroImage');
 function show(i){current=(i+images.length)%images.length;img.src=images[current];}
