@@ -4,6 +4,11 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Executive Siesta</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+/* Medium-slow Executive Siesta hero transition. */
+#heroImage{opacity:1;transition:opacity 1.8s ease-in-out;}
+#heroImage.es-fading{opacity:0;}
+</style>
 </head>
 <body>
 <header><div class="brand">EXECUTIVE SIESTA</div><div class="tag">REST • RECHARGE • RETURN STRONGER</div></header>
@@ -18,13 +23,14 @@
 /*
 EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
 1. Use ONLY approved KEEPERS images for the website hero rotation.
-2. Keep all synchronized KEEPERS images in the rotation.
+2. Keep all synchronized KEEPERS images in the rotation unless a temporary curated subset is selected.
 3. Display each image for exactly 7 seconds.
 4. Randomize image order for every cycle.
-5. Show every image once before any image repeats.
+5. Show every active image once before any image repeats.
 6. At the end of a cycle, reshuffle; do not let the last image of one cycle immediately repeat as the first of the next.
 7. Preserve manual left/right swipe navigation.
-8. Rotation logic is intentionally embedded in index.html so it cannot fail because of a stale or missing external JavaScript file.
+8. Use a medium-slow 1.8-second fade transition between hero images.
+9. Rotation logic is intentionally embedded in index.html so it cannot fail because of a stale or missing external JavaScript file.
 */
 (function(){
   const KEEPER_IMAGES=[
@@ -34,6 +40,7 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
     'assets/executive-siesta-04.jpg'
   ];
   const DISPLAY_MS=7000;
+  const FADE_MS=1800;
   const img=document.getElementById('heroImage');
   const visual=document.getElementById('visual');
   if(!img || !visual || KEEPER_IMAGES.length===0) return;
@@ -42,6 +49,7 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
   let position=0;
   let previous=null;
   let timer=null;
+  let transitioning=false;
 
   function shuffle(){
     const a=KEEPER_IMAGES.slice();
@@ -56,16 +64,35 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
   }
 
   function newCycle(){ order=shuffle(); position=0; }
-  function show(){ img.src=order[position]; previous=order[position]; }
+  function setInitial(){ img.src=order[position]; previous=order[position]; }
+
+  function fadeTo(src){
+    if(transitioning) return;
+    transitioning=true;
+    img.classList.add('es-fading');
+    window.setTimeout(function(){
+      img.src=src;
+      previous=src;
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          img.classList.remove('es-fading');
+          window.setTimeout(function(){transitioning=false;},FADE_MS);
+        });
+      });
+    },FADE_MS);
+  }
+
   function next(){
+    if(transitioning) return;
     position++;
     if(position>=order.length) newCycle();
-    show();
+    fadeTo(order[position]);
   }
   function prev(){
+    if(transitioning) return;
     position--;
     if(position<0) position=order.length-1;
-    show();
+    fadeTo(order[position]);
   }
   function restartTimer(){
     if(timer) clearInterval(timer);
@@ -73,7 +100,7 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
   }
 
   newCycle();
-  show();
+  setInitial();
   restartTimer();
 
   let x=0;
