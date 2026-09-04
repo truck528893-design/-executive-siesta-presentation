@@ -5,122 +5,37 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Executive Siesta</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+/* Safari-safe hero: one permanent base image + one temporary overlay. Only the overlay animates. */
+#visual{position:relative;overflow:hidden;isolation:isolate;}
+#visual .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;}
+#heroBase{z-index:1;opacity:1;}
+#heroOverlay{z-index:2;opacity:0;pointer-events:none;}
+</style>
 </head>
 <body>
-<header>
-  <div class="brand">EXECUTIVE SIESTA</div>
-  <div class="tag">REST • RECHARGE • RETURN STRONGER</div>
-</header>
+<header><div class="brand">EXECUTIVE SIESTA</div><div class="tag">REST • RECHARGE • RETURN STRONGER</div></header>
 <main>
 <section class="hero">
-  <div class="copy">
-    <p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p>
-    <h1>Reliable rest.<br>No negative surprises.</h1>
-    <p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p>
-    <a href="#standard">OUR STANDARD</a>
-  </div>
-
-  <div class="visual-wrap">
-    <div class="visual" id="visual" aria-label="Executive Siesta image gallery">
-      <img id="heroA" class="hero-image is-visible" src="executive-siesta-01.jpg" alt="Executive Siesta">
-      <img id="heroB" class="hero-image" src="executive-siesta-02.jpg" alt="Executive Siesta">
-    </div>
-  </div>
+<div class="copy"><p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p><h1>Reliable rest.<br>No negative surprises.</h1><p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p><a href="#standard">OUR STANDARD</a></div>
+<div class="visual-wrap"><div class="visual" id="visual" aria-label="Executive Siesta image gallery"><img id="heroBase" class="hero-image" src="executive-siesta-01.jpg" alt="Executive Siesta"><img id="heroOverlay" class="hero-image" src="executive-siesta-02.jpg" alt="" aria-hidden="true"></div></div>
 </section>
-
-<section id="standard" class="standard">
-  <h2>Comfort with continuity.</h2>
-  <p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p>
-  <div class="cards">
-    <article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article>
-    <article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article>
-    <article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article>
-  </div>
-</section>
+<section id="standard" class="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article><article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article><article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article></div></section>
 </main>
-
 <script>
-/*
-EXECUTIVE SIESTA HERO — CLEAN TEST BUILD
-- Only full-resolution display assets.
-- Two-image test rotation until transition quality is approved.
-- Each image remains stationary for 10 seconds.
-- Both images are fully loaded and decoded before automatic rotation begins.
-- Transition is opacity-only between two permanently stacked layers.
-- No source replacement occurs during a dissolve.
-- Fixed hero frame prevents resizing/jumping.
-- Swipe uses the same dissolve.
-*/
+/* ES Safari-safe dissolve test. The base never fades out. The incoming image fades over it; after the fade the base source is changed while completely covered, then the overlay is reset instantly while transitions are disabled. */
 (() => {
-  const SOURCES = ['executive-siesta-01.jpg', 'executive-siesta-02.jpg'];
-  const HOLD_MS = 10000;
-  const FADE_MS = 2200;
-  const visual = document.getElementById('visual');
-  const layers = [document.getElementById('heroA'), document.getElementById('heroB')];
-  if (!visual || layers.some(x => !x)) return;
-
-  let visible = 0;
-  let timer = null;
-  let busy = false;
-  let touchX = 0;
-
-  function decoded(img) {
-    if (img.complete && img.naturalWidth > 0) {
-      return img.decode ? img.decode().catch(() => {}) : Promise.resolve();
-    }
-    return new Promise((resolve, reject) => {
-      img.addEventListener('load', () => {
-        if (img.decode) img.decode().catch(() => {}).finally(resolve);
-        else resolve();
-      }, { once: true });
-      img.addEventListener('error', reject, { once: true });
-    });
-  }
-
-  function schedule() {
-    clearTimeout(timer);
-    timer = setTimeout(change, HOLD_MS);
-  }
-
-  function change() {
-    if (busy) return;
-    busy = true;
-    clearTimeout(timer);
-
-    const incoming = 1 - visible;
-    const outgoingLayer = layers[visible];
-    const incomingLayer = layers[incoming];
-
-    decoded(incomingLayer).then(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          incomingLayer.classList.add('is-visible');
-          outgoingLayer.classList.remove('is-visible');
-        });
-      });
-
-      window.setTimeout(() => {
-        visible = incoming;
-        busy = false;
-        schedule();
-      }, FADE_MS + 80);
-    }).catch(() => {
-      busy = false;
-      schedule();
-    });
-  }
-
-  Promise.all(layers.map(decoded)).then(schedule).catch(schedule);
-
-  visual.addEventListener('touchstart', e => {
-    touchX = e.touches[0].clientX;
-  }, { passive: true });
-
-  visual.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 40 && !busy) change();
-  }, { passive: true });
+ const SOURCES=['executive-siesta-01.jpg','executive-siesta-02.jpg'];
+ const HOLD=10000,FADE=2200;
+ const visual=document.getElementById('visual'),base=document.getElementById('heroBase'),overlay=document.getElementById('heroOverlay');
+ if(!visual||!base||!overlay)return;
+ let current=0,timer=null,busy=false,touchX=0;
+ const preload=src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{(im.decode?im.decode().catch(()=>{}):Promise.resolve()).then(()=>resolve(src));};im.onerror=reject;im.src=src;});
+ function schedule(){clearTimeout(timer);timer=setTimeout(change,HOLD);}
+ async function change(){if(busy)return;busy=true;clearTimeout(timer);const next=1-current;try{await preload(SOURCES[next]);overlay.src=SOURCES[next];if(overlay.decode)await overlay.decode().catch(()=>{});overlay.style.transition=`opacity ${FADE}ms ease-in-out`;requestAnimationFrame(()=>requestAnimationFrame(()=>{overlay.style.opacity='1';}));setTimeout(()=>{base.src=SOURCES[next];current=next;requestAnimationFrame(()=>{overlay.style.transition='none';overlay.style.opacity='0';void overlay.offsetWidth;overlay.style.transition='';busy=false;schedule();});},FADE+120);}catch(e){busy=false;schedule();}}
+ Promise.all(SOURCES.map(preload)).then(schedule).catch(schedule);
+ visual.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX;},{passive:true});
+ visual.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-touchX)>40&&!busy)change();},{passive:true});
 })();
 </script>
-</body>
-</html>
+</body></html>
