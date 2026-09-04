@@ -32,7 +32,7 @@
 EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
 1. Use ONLY approved KEEPERS images for the website hero rotation.
 2. Keep all synchronized KEEPERS images in the rotation unless a temporary curated subset is selected.
-3. Hold each image for 7 seconds.
+3. Hold each image for 10 seconds before beginning the next transition.
 4. Randomize image order for every cycle.
 5. Show every active image once before any image repeats.
 6. At the end of a cycle, reshuffle; do not let the last image of one cycle immediately repeat as the first of the next.
@@ -47,7 +47,7 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
     'assets/executive-siesta-03.jpg',
     'assets/executive-siesta-04.jpg'
   ];
-  const DISPLAY_MS=7000;
+  const DISPLAY_MS=10000;
   const FADE_MS=2400;
   const visual=document.getElementById('visual');
   const front=document.getElementById('heroFront');
@@ -73,10 +73,7 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
   }
 
   function newCycle(){ order=shuffled(); position=0; }
-  function initial(){
-    front.src=order[position];
-    previous=order[position];
-  }
+  function initial(){ front.src=order[position]; previous=order[position]; }
 
   function crossfadeTo(src){
     if(transitioning) return;
