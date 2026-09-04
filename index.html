@@ -5,9 +5,14 @@
 <title>Executive Siesta</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-/* Medium-slow Executive Siesta hero transition. */
-#heroImage{opacity:1;transition:opacity 1.8s ease-in-out;}
-#heroImage.es-fading{opacity:0;}
+/* True medium-slow crossfade: the incoming image fades in while the outgoing image fades out. */
+#visual{overflow:hidden;}
+#visual .es-hero-layer{display:block;width:100%;height:auto;max-height:82vh;object-fit:contain;transition:opacity 2.4s ease-in-out;will-change:opacity;}
+#visual .es-hero-layer.es-front{position:relative;z-index:2;opacity:1;}
+#visual .es-hero-layer.es-back{position:absolute;inset:0;z-index:1;opacity:0;margin:auto;}
+#visual.es-crossfading .es-front{opacity:0;}
+#visual.es-crossfading .es-back{opacity:1;}
+@media(max-width:850px){#visual .es-hero-layer{width:100%;height:auto;max-height:none;object-fit:contain;}}
 </style>
 </head>
 <body>
@@ -15,7 +20,10 @@
 <main>
 <section class="hero">
 <div class="copy"><p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p><h1>Reliable rest.<br>No negative surprises.</h1><p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p><a href="#standard">OUR STANDARD</a></div>
-<div class="visual" id="visual"><img id="heroImage" src="assets/executive-siesta-01.jpg" alt="Executive Siesta professional relaxing at sunset"></div>
+<div class="visual" id="visual">
+<img id="heroFront" class="es-hero-layer es-front" src="assets/executive-siesta-01.jpg" alt="Executive Siesta professional relaxing at sunset">
+<img id="heroBack" class="es-hero-layer es-back" src="assets/executive-siesta-02.jpg" alt="" aria-hidden="true">
+</div>
 </section>
 <section id="standard" class="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article><article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article><article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article></div></section>
 </main>
@@ -24,13 +32,13 @@
 EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
 1. Use ONLY approved KEEPERS images for the website hero rotation.
 2. Keep all synchronized KEEPERS images in the rotation unless a temporary curated subset is selected.
-3. Display each image for exactly 7 seconds.
+3. Hold each image for 7 seconds.
 4. Randomize image order for every cycle.
 5. Show every active image once before any image repeats.
 6. At the end of a cycle, reshuffle; do not let the last image of one cycle immediately repeat as the first of the next.
 7. Preserve manual left/right swipe navigation.
-8. Use a medium-slow 1.8-second fade transition between hero images.
-9. Rotation logic is intentionally embedded in index.html so it cannot fail because of a stale or missing external JavaScript file.
+8. Use a true medium-slow 2.4-second crossfade between hero images.
+9. Rotation logic remains embedded in index.html to avoid stale or missing external JavaScript.
 */
 (function(){
   const KEEPER_IMAGES=[
@@ -40,10 +48,13 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
     'assets/executive-siesta-04.jpg'
   ];
   const DISPLAY_MS=7000;
-  const FADE_MS=1800;
-  const img=document.getElementById('heroImage');
+  const FADE_MS=2400;
   const visual=document.getElementById('visual');
-  if(!img || !visual || KEEPER_IMAGES.length===0) return;
+  const front=document.getElementById('heroFront');
+  const back=document.getElementById('heroBack');
+  if(!visual || !front || !back || !KEEPER_IMAGES.length) return;
+
+  KEEPER_IMAGES.forEach(function(src){ const p=new Image(); p.src=src; });
 
   let order=[];
   let position=0;
@@ -51,56 +62,65 @@ EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
   let timer=null;
   let transitioning=false;
 
-  function shuffle(){
+  function shuffled(){
     const a=KEEPER_IMAGES.slice();
     for(let i=a.length-1;i>0;i--){
       const j=Math.floor(Math.random()*(i+1));
-      const t=a[i]; a[i]=a[j]; a[j]=t;
+      [a[i],a[j]]=[a[j],a[i]];
     }
-    if(a.length>1 && previous && a[0]===previous){
-      const t=a[0]; a[0]=a[1]; a[1]=t;
-    }
+    if(a.length>1 && previous && a[0]===previous){ [a[0],a[1]]=[a[1],a[0]]; }
     return a;
   }
 
-  function newCycle(){ order=shuffle(); position=0; }
-  function setInitial(){ img.src=order[position]; previous=order[position]; }
+  function newCycle(){ order=shuffled(); position=0; }
+  function initial(){
+    front.src=order[position];
+    previous=order[position];
+  }
 
-  function fadeTo(src){
+  function crossfadeTo(src){
     if(transitioning) return;
     transitioning=true;
-    img.classList.add('es-fading');
-    window.setTimeout(function(){
-      img.src=src;
-      previous=src;
+    back.src=src;
+    back.onload=function(){
       requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          img.classList.remove('es-fading');
-          window.setTimeout(function(){transitioning=false;},FADE_MS);
-        });
+        visual.classList.add('es-crossfading');
+        window.setTimeout(function(){
+          front.src=src;
+          previous=src;
+          visual.classList.remove('es-crossfading');
+          back.style.transition='none';
+          back.style.opacity='0';
+          void back.offsetWidth;
+          back.style.transition='';
+          transitioning=false;
+        },FADE_MS+80);
       });
-    },FADE_MS);
+    };
+    if(back.complete) back.onload();
   }
 
   function next(){
     if(transitioning) return;
     position++;
     if(position>=order.length) newCycle();
-    fadeTo(order[position]);
+    crossfadeTo(order[position]);
   }
+
   function prev(){
     if(transitioning) return;
     position--;
     if(position<0) position=order.length-1;
-    fadeTo(order[position]);
+    crossfadeTo(order[position]);
   }
+
   function restartTimer(){
     if(timer) clearInterval(timer);
     timer=setInterval(next,DISPLAY_MS);
   }
 
   newCycle();
-  setInitial();
+  initial();
   restartTimer();
 
   let x=0;
