@@ -1,41 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Executive Siesta</title>
-<link rel="stylesheet" href="styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Executive Siesta</title><link rel="stylesheet" href="styles.css">
 <style>
-/* Safari-safe hero: one permanent base image + one temporary overlay. Only the overlay animates. */
 #visual{position:relative;overflow:hidden;isolation:isolate;}
-#visual .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;}
-#heroBase{z-index:1;opacity:1;}
-#heroOverlay{z-index:2;opacity:0;pointer-events:none;}
-</style>
-</head>
-<body>
-<header><div class="brand">EXECUTIVE SIESTA</div><div class="tag">REST • RECHARGE • RETURN STRONGER</div></header>
-<main>
-<section class="hero">
-<div class="copy"><p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p><h1>Reliable rest.<br>No negative surprises.</h1><p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p><a href="#standard">OUR STANDARD</a></div>
-<div class="visual-wrap"><div class="visual" id="visual" aria-label="Executive Siesta image gallery"><img id="heroBase" class="hero-image" src="executive-siesta-01.jpg" alt="Executive Siesta"><img id="heroOverlay" class="hero-image" src="executive-siesta-02.jpg" alt="" aria-hidden="true"></div></div>
-</section>
-<section id="standard" class="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article><article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article><article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article></div></section>
-</main>
+#visual .hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden;}
+#heroA{z-index:1;opacity:1;}
+#heroB{z-index:2;opacity:0;transition:opacity 2200ms ease-in-out;-webkit-transition:opacity 2200ms ease-in-out;}
+#visual.show-b #heroB{opacity:1;}
+</style></head>
+<body><header><div class="brand">EXECUTIVE SIESTA</div><div class="tag">REST • RECHARGE • RETURN STRONGER</div></header><main><section class="hero"><div class="copy"><p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p><h1>Reliable rest.<br>No negative surprises.</h1><p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p><a href="#standard">OUR STANDARD</a></div><div class="visual-wrap"><div class="visual" id="visual" aria-label="Executive Siesta image gallery"><img id="heroA" class="hero-image" src="executive-siesta-01.jpg" alt="Executive Siesta"><img id="heroB" class="hero-image" src="executive-siesta-02.jpg" alt="Executive Siesta"></div></div></section><section id="standard" class="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article><article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article><article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article></div></section></main>
 <script>
-/* ES Safari-safe dissolve test. The base never fades out. The incoming image fades over it; after the fade the base source is changed while completely covered, then the overlay is reset instantly while transitions are disabled. */
-(() => {
- const SOURCES=['executive-siesta-01.jpg','executive-siesta-02.jpg'];
- const HOLD=10000,FADE=2200;
- const visual=document.getElementById('visual'),base=document.getElementById('heroBase'),overlay=document.getElementById('heroOverlay');
- if(!visual||!base||!overlay)return;
- let current=0,timer=null,busy=false,touchX=0;
- const preload=src=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{(im.decode?im.decode().catch(()=>{}):Promise.resolve()).then(()=>resolve(src));};im.onerror=reject;im.src=src;});
- function schedule(){clearTimeout(timer);timer=setTimeout(change,HOLD);}
- async function change(){if(busy)return;busy=true;clearTimeout(timer);const next=1-current;try{await preload(SOURCES[next]);overlay.src=SOURCES[next];if(overlay.decode)await overlay.decode().catch(()=>{});overlay.style.transition=`opacity ${FADE}ms ease-in-out`;requestAnimationFrame(()=>requestAnimationFrame(()=>{overlay.style.opacity='1';}));setTimeout(()=>{base.src=SOURCES[next];current=next;requestAnimationFrame(()=>{overlay.style.transition='none';overlay.style.opacity='0';void overlay.offsetWidth;overlay.style.transition='';busy=false;schedule();});},FADE+120);}catch(e){busy=false;schedule();}}
- Promise.all(SOURCES.map(preload)).then(schedule).catch(schedule);
- visual.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX;},{passive:true});
- visual.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-touchX)>40&&!busy)change();},{passive:true});
-})();
-</script>
-</body></html>
+/* Two immutable decoded image layers. No src changes, DOM changes, transition reset, or layer removal ever occurs after startup. */
+(()=>{const HOLD=10000,visual=document.getElementById('visual'),a=document.getElementById('heroA'),b=document.getElementById('heroB');if(!visual||!a||!b)return;let showingB=false,timer=null,touchX=0;function ready(img){if(img.complete&&img.naturalWidth)return img.decode?img.decode().catch(()=>{}):Promise.resolve();return new Promise((resolve,reject)=>{img.onload=()=>{if(img.decode)img.decode().catch(()=>{}).then(resolve);else resolve()};img.onerror=reject})}function change(){showingB=!showingB;visual.classList.toggle('show-b',showingB);schedule()}function schedule(){clearTimeout(timer);timer=setTimeout(change,HOLD)}Promise.all([ready(a),ready(b)]).then(schedule).catch(schedule);visual.addEventListener('touchstart',e=>touchX=e.touches[0].clientX,{passive:true});visual.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-touchX)>40){clearTimeout(timer);change()}},{passive:true})})();
+</script></body></html>
