@@ -14,6 +14,74 @@
 </section>
 <section id="standard" class="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article><article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article><article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article></div></section>
 </main>
-<!-- Cache-busted so browsers load the current 7-second KEEPERS rotation code. -->
-<script src="script.js?v=e2242f42"></script>
+<script>
+/*
+EXECUTIVE SIESTA WEBSITE IMAGE POLICY — PERMANENT
+1. Use ONLY approved KEEPERS images for the website hero rotation.
+2. Keep all synchronized KEEPERS images in the rotation.
+3. Display each image for exactly 7 seconds.
+4. Randomize image order for every cycle.
+5. Show every image once before any image repeats.
+6. At the end of a cycle, reshuffle; do not let the last image of one cycle immediately repeat as the first of the next.
+7. Preserve manual left/right swipe navigation.
+8. Rotation logic is intentionally embedded in index.html so it cannot fail because of a stale or missing external JavaScript file.
+*/
+(function(){
+  const KEEPER_IMAGES=[
+    'assets/executive-siesta-01.jpg',
+    'assets/executive-siesta-02.jpg',
+    'assets/executive-siesta-03.jpg',
+    'assets/executive-siesta-04.jpg'
+  ];
+  const DISPLAY_MS=7000;
+  const img=document.getElementById('heroImage');
+  const visual=document.getElementById('visual');
+  if(!img || !visual || KEEPER_IMAGES.length===0) return;
+
+  let order=[];
+  let position=0;
+  let previous=null;
+  let timer=null;
+
+  function shuffle(){
+    const a=KEEPER_IMAGES.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    if(a.length>1 && previous && a[0]===previous){
+      const t=a[0]; a[0]=a[1]; a[1]=t;
+    }
+    return a;
+  }
+
+  function newCycle(){ order=shuffle(); position=0; }
+  function show(){ img.src=order[position]; previous=order[position]; }
+  function next(){
+    position++;
+    if(position>=order.length) newCycle();
+    show();
+  }
+  function prev(){
+    position--;
+    if(position<0) position=order.length-1;
+    show();
+  }
+  function restartTimer(){
+    if(timer) clearInterval(timer);
+    timer=setInterval(next,DISPLAY_MS);
+  }
+
+  newCycle();
+  show();
+  restartTimer();
+
+  let x=0;
+  visual.addEventListener('touchstart',function(e){x=e.touches[0].clientX;},{passive:true});
+  visual.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-x;
+    if(Math.abs(dx)>40){ dx<0?next():prev(); restartTimer(); }
+  },{passive:true});
+})();
+</script>
 </body></html>
