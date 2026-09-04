@@ -5,7 +5,7 @@
 <title>Executive Siesta</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-#visual{overflow:hidden;}
+#visual{overflow:hidden;position:relative;background:#071425;}
 #visual .es-hero-layer{display:block;width:100%;height:auto;max-height:82vh;object-fit:contain;transition:opacity 2.4s ease-in-out;will-change:opacity;}
 #visual .es-hero-layer.es-front{position:relative;z-index:2;opacity:1;}
 #visual .es-hero-layer.es-back{position:absolute;inset:0;z-index:1;opacity:0;margin:auto;}
@@ -20,64 +20,31 @@
 <section class="hero">
 <div class="copy"><p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p><h1>Reliable rest.<br>No negative surprises.</h1><p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p><a href="#standard">OUR STANDARD</a></div>
 <div class="visual" id="visual">
-<img id="heroFront" class="es-hero-layer es-front" src="assets/keepers/r54-harvest-sunrise.jpg" alt="Executive Siesta professional relaxing at sunset">
-<img id="heroBack" class="es-hero-layer es-back" src="assets/keepers/r55-oilfield-sunrise.jpg" alt="" aria-hidden="true">
+<img id="heroFront" class="es-hero-layer es-front" src="executive-siesta-01.jpg" alt="Executive Siesta">
+<img id="heroBack" class="es-hero-layer es-back" src="executive-siesta-02.jpg" alt="" aria-hidden="true">
 </div>
 </section>
 <section id="standard" class="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><article><b>SLEEP</b><span>Blackout shades AND blackout curtains. Quiet and restorative.</span></article><article><b>WORK</b><span>Proper workstations and dependable connectivity.</span></article><article><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></article></div></section>
 </main>
 <script>
-/* EXECUTIVE SIESTA HERO POLICY
-KEEPERS is the master image collection. Sync approved website images into assets/keepers as needed.
-Current curated rotation: distinct backgrounds only.
-Hold 10 seconds; true 2.4-second crossfade; random order; every active image once before repeat; preserve swipe.
-*/
+/* ES WEBSITE DISPLAY POLICY: use only full/high-resolution approved display assets. Never use thumbnails, screenshots, preview derivatives, or compressed KEEPERS resource copies as live display assets. KEEPERS remains the resource/archive collection; this list is the deliberately curated website display set. */
 (function(){
-  const KEEPER_IMAGES=[
-    'assets/keepers/r54-harvest-sunrise.jpg',
-    'assets/keepers/r55-oilfield-sunrise.jpg',
-    'assets/keepers/r58-flowering-cotton.jpg',
-    'assets/keepers/distant-saguaro.jpg'
-  ];
-  const DISPLAY_MS=10000;
-  const FADE_MS=2400;
-  const visual=document.getElementById('visual');
-  const front=document.getElementById('heroFront');
-  const back=document.getElementById('heroBack');
-  if(!visual || !front || !back || !KEEPER_IMAGES.length) return;
-  KEEPER_IMAGES.forEach(function(src){const p=new Image();p.src=src;});
-  let order=[],position=0,previous=null,timer=null,transitioning=false;
-  function shuffled(){
-    const a=KEEPER_IMAGES.slice();
-    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
-    if(a.length>1&&previous&&a[0]===previous){[a[0],a[1]]=[a[1],a[0]];}
-    return a;
-  }
-  function newCycle(){order=shuffled();position=0;}
-  function initial(){front.src=order[position];previous=order[position];}
-  function crossfadeTo(src){
-    if(transitioning)return;
-    transitioning=true;
-    back.src=src;
-    const begin=function(){
-      requestAnimationFrame(function(){
-        visual.classList.add('es-crossfading');
-        window.setTimeout(function(){
-          front.src=src;previous=src;visual.classList.remove('es-crossfading');
-          back.style.transition='none';back.style.opacity='0';void back.offsetWidth;back.style.transition='';transitioning=false;
-        },FADE_MS+80);
-      });
-    };
-    back.onload=begin;
-    if(back.complete)begin();
-  }
-  function next(){if(transitioning)return;position++;if(position>=order.length)newCycle();crossfadeTo(order[position]);}
-  function prev(){if(transitioning)return;position--;if(position<0)position=order.length-1;crossfadeTo(order[position]);}
-  function restartTimer(){if(timer)clearInterval(timer);timer=setInterval(next,DISPLAY_MS);}
-  newCycle();initial();restartTimer();
-  let x=0;
-  visual.addEventListener('touchstart',function(e){x=e.touches[0].clientX;},{passive:true});
-  visual.addEventListener('touchend',function(e){const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40){dx<0?next():prev();restartTimer();}},{passive:true});
+ const IMAGES=['executive-siesta-01.jpg','executive-siesta-02.jpg','executive-siesta-03.jpg','executive-siesta-04.jpg'];
+ const HOLD_MS=10000,FADE_MS=2400;
+ const visual=document.getElementById('visual'),front=document.getElementById('heroFront'),back=document.getElementById('heroBack');
+ if(!visual||!front||!back||!IMAGES.length)return;
+ const loaded=new Map();
+ function preload(src){return new Promise((resolve,reject)=>{if(loaded.get(src)){resolve(src);return;}const im=new Image();im.decoding='async';im.onload=()=>{loaded.set(src,true);resolve(src)};im.onerror=reject;im.src=src;});}
+ Promise.all(IMAGES.map(preload)).catch(()=>{});
+ let order=[],pos=0,last=null,timer=null,busy=false;
+ function shuffle(){const a=IMAGES.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}if(a.length>1&&last&&a[0]===last)[a[0],a[1]]=[a[1],a[0]];return a;}
+ function newCycle(){order=shuffle();pos=0;}
+ function schedule(){clearTimeout(timer);timer=setTimeout(next,HOLD_MS);}
+ async function transition(src){if(busy||src===front.getAttribute('src')){schedule();return;}busy=true;try{await preload(src);back.src=src;await back.decode().catch(()=>{});requestAnimationFrame(()=>requestAnimationFrame(()=>visual.classList.add('es-crossfading')));setTimeout(()=>{front.src=src;last=src;visual.classList.remove('es-crossfading');back.style.transition='none';back.style.opacity='0';void back.offsetWidth;back.style.transition='';busy=false;schedule();},FADE_MS+100);}catch(e){busy=false;schedule();}}
+ function next(){if(busy)return;pos++;if(pos>=order.length)newCycle();transition(order[pos]);}
+ function prev(){if(busy)return;pos--;if(pos<0)pos=order.length-1;transition(order[pos]);}
+ newCycle();front.src=order[0];last=order[0];preload(order[0]).then(()=>schedule()).catch(()=>schedule());
+ let x=0;visual.addEventListener('touchstart',e=>x=e.touches[0].clientX,{passive:true});visual.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x;if(Math.abs(dx)>40){clearTimeout(timer);dx<0?next():prev();}},{passive:true});
 })();
 </script>
 </body></html>
