@@ -1,1 +1,53 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081526"><title>Executive Siesta</title><link rel="stylesheet" href="styles.css?v=20e00191"></head><body><header class="site-header"><div class="brand">EXECUTIVE SIESTA</div><div class="tag">REST • RECHARGE • RETURN STRONGER</div></header><main><section class="hero"><div class="hero-copy"><p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p><h1>Reliable rest.<br>No negative surprises.</h1><p>Designed around the realities of demanding professional schedules: quiet sleep, dependable standards, serious workspaces and a place that feels ready when you arrive.</p><a class="cta" href="#standard">OUR STANDARD</a></div><div class="poster-shell"><div class="poster-stage" id="posterStage" aria-label="Executive Siesta poster gallery"><div class="poster-fallback" id="posterFallback"><strong>Executive Siesta</strong><span>HIGH-RES APPROVED POSTERS ONLY</span></div></div></div></section><section class="section" id="standard"><h2>Comfort with continuity.</h2><p>The accommodation is only part of the product. The real promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p><div class="cards"><div class="card"><b>SLEEP</b><span>Blackout shades and blackout curtains. Quiet and restorative.</span></div><div class="card"><b>WORK</b><span>Proper workstations and dependable connectivity.</span></div><div class="card"><b>ARRIVE</b><span>Furnished, prepared and predictable.</span></div></div></section></main><footer class="footer">EXECUTIVE SIESTA • LUBBOCK, TEXAS</footer><script>(()=>{const stage=document.getElementById('posterStage'),fallback=document.getElementById('posterFallback');const files=['assets/display/Executive-Siesta-R54-Harvest-Sunrise.png','assets/display/Executive-Siesta-R55-Oilfield-Sunrise.png'];const HOLD=10000,FADE=1800;let slides=[],index=0,timer=null,touchX=0;function load(src){return new Promise(resolve=>{const img=new Image();img.alt='Executive Siesta';img.decoding='async';img.onload=async()=>{try{if(img.decode)await img.decode()}catch(e){}resolve(img)};img.onerror=()=>resolve(null);img.src=src+'?v=20e00191'})}Promise.all(files.map(load)).then(results=>{slides=results.filter(Boolean);if(!slides.length)return;fallback.remove();slides.forEach((img,i)=>{if(i===0)img.classList.add('visible');stage.appendChild(img)});schedule()});function next(){if(slides.length<2)return;slides[index].classList.remove('visible');index=(index+1)%slides.length;slides[index].classList.add('visible');schedule()}function schedule(){clearTimeout(timer);timer=setTimeout(next,HOLD)}stage.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX},{passive:true});stage.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientX-touchX)>40){clearTimeout(timer);next()}},{passive:true})})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071728">
+  <meta name="description" content="Executive Siesta — furnished mid-term accommodations in Lubbock, Texas for demanding professional schedules.">
+  <title>Executive Siesta</title>
+  <link rel="preload" as="image" href="executive-siesta-01.jpg">
+  <link rel="stylesheet" href="styles.css?v=20260903-rebuild-1">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">EXECUTIVE SIESTA</div>
+    <div class="tagline">REST • RECHARGE • RETURN STRONGER</div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">FURNISHED MID-TERM ACCOMMODATIONS • LUBBOCK, TEXAS</p>
+        <h1 id="hero-title">Reliable rest.<br>No negative surprises.</h1>
+        <p class="intro">Quiet sleep, dependable standards, serious workspaces and a place that is ready when you arrive.</p>
+        <a class="cta" href="#standard">OUR STANDARD</a>
+      </div>
+
+      <div class="gallery-wrap">
+        <div class="gallery" id="gallery" aria-label="Executive Siesta image gallery">
+          <img id="layerA" class="gallery-image active" alt="Executive Siesta" decoding="async" fetchpriority="high">
+          <img id="layerB" class="gallery-image" alt="Executive Siesta" decoding="async">
+          <div id="galleryStatus" class="gallery-status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="standard" id="standard">
+      <div class="standard-copy">
+        <p class="eyebrow dark">THE EXECUTIVE SIESTA STANDARD</p>
+        <h2>Comfort with continuity.</h2>
+        <p>The accommodation is only part of the product. The promise is consistency: clean, quiet, work-ready, thoughtfully equipped and professionally maintained.</p>
+      </div>
+      <div class="cards">
+        <article class="card"><strong>SLEEP</strong><p>Blackout window treatment, quiet surroundings and a room designed for restorative sleep.</p></article>
+        <article class="card"><strong>WORK</strong><p>Proper workstations, dependable connectivity and practical space for demanding schedules.</p></article>
+        <article class="card"><strong>ARRIVE</strong><p>Furnished, prepared and predictable — with continuity and no surprises.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>EXECUTIVE SIESTA • LUBBOCK, TEXAS</footer>
+  <script src="script.js?v=20260903-rebuild-1" defer></script>
+</body>
+</html>
